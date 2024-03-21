@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+            display: block;
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="400" height="400"></canvas>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const context = canvas.getContext('2d');
+
+        const tileSize = 20;
+        const tileCount = 20;
+
+        const snake = {
+            x: 10,
+            y: 10,
+            dx: 0,
+            dy: 0,
+            cells: [],
+            maxCells: 4
+        };
+
+        const apple = {
+            x: 5,
+            y: 5
+        };
+
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min)) + min;
+        }
+
+        function update() {
+            snake.x += snake.dx;
+            snake.y += snake.dy;
+
+            if (snake.x < 0) {
+                snake.x = tileCount - 1;
+            }
+            if (snake.y < 0) {
+                snake.y = tileCount - 1;
+            }
+            if (snake.x >= tileCount) {
+                snake.x = 0;
+            }
+            if (snake.y >= tileCount) {
+                snake.y = 0;
+            }
+
+            if (snake.cells.some(cell => cell.x === snake.x && cell.y === snake.y)) {
+                snake.cells = [{ x: 10, y: 10 }];
+                snake.dx = 0;
+                snake.dy = 0;
+            }
+
+            snake.cells.unshift({ x: snake.x, y: snake.y });
+
+            if (snake.cells.length > snake.maxCells) {
+                snake.cells.pop();
+            }
+
+            if (apple.x === snake.x && apple.y === snake.y) {
+                snake.maxCells++;
+                apple.x = getRandomInt(0, tileCount);
+                apple.y = getRandomInt(0, tileCount);
+            }
+        }
+
+        function draw() {
+            context.fillStyle = 'black';
+            context.fillRect(0, 0, canvas.width, canvas.height);
+
+            context.fillStyle = 'lime';
+            snake.cells.forEach(cell => {
+                context.fillRect(cell.x * tileSize, cell.y * tileSize, tileSize, tileSize);
+            });
+
+            context.fillStyle = 'red';
+            context.fillRect(apple.x * tileSize, apple.y * tileSize, tileSize, tileSize);
+        }
+
+        function loop() {
+            update();
+            draw();
+            requestAnimationFrame(loop);
+        }
+
+        document.addEventListener('keydown', e => {
+            switch (e.key) {
+                case 'ArrowUp':
+                    if (snake.dy === 0) {
+                        snake.dx = 0;
+                        snake.dy = -1;
+                    }
+                    break;
+                case 'ArrowDown':
+                    if (snake.dy === 0) {
+                        snake.dx = 0;
+                        snake.dy = 1;
+                    }
+                    break;
+                case 'ArrowLeft':
+                    if (snake.dx === 0) {
+                        snake.dx = -1;
+                        snake.dy = 0;
+                    }
+                    break;
+                case 'ArrowRight':
+                    if (snake.dx === 0) {
+                        snake.dx = 1;
+                        snake.dy = 0;
+                    }
+                    break;
+            }
+        });
+
+        loop();
+    </script>
+</body>
+</html>
